@@ -1,5 +1,7 @@
 package com.puji.lineargraphview;
 
+import com.puji.lineargraphview.LinearGraphView.GraphViewData;
+
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -11,6 +13,15 @@ public class MainActivity extends ActionBarActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		LinearGraphView mGraphView = (LinearGraphView) findViewById(R.id.linear_graph_view);
+
+		GraphViewData[] data = new GraphViewData[8];
+		for (int i = 0; i < data.length; i++) {
+
+			data[i] = new GraphViewData(0, i);
+		}
+		
+		mGraphView.setData(data);
 	}
 
 	@Override

@@ -59,7 +59,7 @@ public class LinearGraphView extends View {
 	/**
 	 * 水平刻度数
 	 */
-	private int mHorizontalLabelCount;
+	private int mHorizontalLabelCount = 7;
 
 	/**
 	 * 在X轴方向的开始刻度值
@@ -150,6 +150,11 @@ public class LinearGraphView extends View {
 	 * 图形标题的对齐方式
 	 */
 	private Align mGraphTitleAlign = Align.CENTER;
+
+	/**
+	 * 水平标签
+	 */
+	private String[] mHorizontalLables;
 
 	/**
 	 * 得到图形标题
@@ -473,6 +478,7 @@ public class LinearGraphView extends View {
 	 */
 	public void setData(GraphViewData[] mData) {
 		this.mData = mData;
+		invalidate();
 	}
 
 	/**
@@ -604,6 +610,77 @@ public class LinearGraphView extends View {
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
 
+		if (mData == null) {
+			return;
+		}
+
+		int startX = 100 + mSpaceingOfHorizontalLabelWithGraph;
+		int startY = getFontHeight(mGraphTitleTextSize)
+				+ mSpaceingOfHorizontalLabelWithGraph;
+
+		int validWidth = getWidth() - startX - getPaddingRight();
+		int validHeight = getHeight() - startY
+				- mSpaceingOfHorizontalLabelWithGraph
+				- mSpaceingOfTitleWithGraph;
+
+		mGridPaint.setAntiAlias(true);
+		mGridPaint.setColor(mGridColor);
+		mGridPaint.setStyle(Paint.Style.STROKE);
+		mGridPaint.setStrokeWidth(mGridWeight);
+
+		for (int i = 0; i < mHorizontalLabelCount - 1; i++) {
+
+			canvas.drawLine(startX + i * validWidth
+					/ (mHorizontalLabelCount - 1), startY, startX + i
+					* validWidth / (mHorizontalLabelCount - 1), startY
+					+ validHeight, mGridPaint);
+
+		}
+		canvas.drawLine(startX + validWidth, startY, startX + validWidth,
+				startY + validHeight, mGridPaint);
+
+		for (int i = 0; i < mData.length - 1; i++) {
+
+			canvas.drawLine(startX, startY + i * validHeight
+					/ (mData.length - 1), startX + validWidth, startY + i
+					* validHeight / (mData.length - 1), mGridPaint);
+
+		}
+		canvas.drawLine(startX, startY + validHeight, startX + validWidth,
+				startY + validHeight, mGridPaint);
+
+		// for (int i = 0; i < mData.length; i++) {
+		//
+		// canvas.drawLine(startX, startY, stopX, stopY, paint);
+		//
+		// }
+
+	}
+
+	private double getMaxYValue() {
+
+		double max = mData[0].y;
+
+		for (int i = 0; i < mData.length; i++) {
+
+			max = max > mData[i].y ? max : mData[i].y;
+		}
+
+		return max;
+	}
+
+	private String getMaxLengthString(String[] data) {
+
+		int length = 0;
+		int index = 0;
+
+		for (int i = 0; i < data.length; i++) {
+			if (length < data[i].length()) {
+				length = data[i].length();
+				index = i;
+			}
+		}
+		return data[index];
 	}
 
 	/**
@@ -624,10 +701,10 @@ public class LinearGraphView extends View {
 	 * 
 	 * @return
 	 */
-	private int getFontWidth(float fontSize) {
+	private int getFontWidth(float fontSize, String str) {
 		Paint paint = new Paint();
 		paint.setTextSize(fontSize);
-		return (int) paint.measureText("0000000000");
+		return (int) paint.measureText(str);
 	}
 
 	/**
