@@ -15,12 +15,15 @@ public class MainActivity extends ActionBarActivity {
 		setContentView(R.layout.activity_main);
 		LinearGraphView mGraphView = (LinearGraphView) findViewById(R.id.linear_graph_view);
 
-		GraphViewData[] data = new GraphViewData[8];
-		for (int i = 0; i < data.length; i++) {
+		GraphViewData[] data = new GraphViewData[6];
 
-			data[i] = new GraphViewData(0, i);
-		}
-		
+		data[0] = new GraphViewData(0, 5);
+		data[1] = new GraphViewData(1, 4);
+		data[2] = new GraphViewData(2, 2);
+		data[3] = new GraphViewData(3, 9);
+		data[4] = new GraphViewData(4, 8);
+		data[5] = new GraphViewData(5, 20);
+
 		mGraphView.setData(data);
 	}
 

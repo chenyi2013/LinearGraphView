@@ -1,11 +1,13 @@
 package com.puji.lineargraphview;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Align;
 import android.graphics.Paint.FontMetrics;
+import android.graphics.Path;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
@@ -606,6 +608,7 @@ public class LinearGraphView extends View {
 
 	}
 
+	@SuppressLint("DrawAllocation")
 	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
@@ -649,12 +652,36 @@ public class LinearGraphView extends View {
 		canvas.drawLine(startX, startY + validHeight, startX + validWidth,
 				startY + validHeight, mGridPaint);
 
-		// for (int i = 0; i < mData.length; i++) {
-		//
-		// canvas.drawLine(startX, startY, stopX, stopY, paint);
-		//
-		// }
+		Path path = new Path();
+		path.moveTo(startX, startY + validHeight);
 
+		mGridPaint.setColor(Color.RED);
+		double maxY = getMaxYValue();
+		for (int i = 1; i < mData.length; i++) {
+
+			canvas.drawLine(startX + (i - 1) * validWidth
+					/ (mHorizontalLabelCount - 1), (float) (startY
+					+ validHeight - validHeight * (mData[i - 1].y / maxY)),
+					startX + i * validWidth / (mHorizontalLabelCount - 1),
+					(float) (startY + validHeight - validHeight
+							* (mData[i].y / maxY)), mGridPaint);
+
+			path.lineTo(startX + (i - 1) * validWidth
+					/ (mHorizontalLabelCount - 1), (float) (startY
+					+ validHeight - validHeight * (mData[i - 1].y / maxY)));
+
+		}
+
+		mGridPaint.setStyle(Paint.Style.FILL);
+		path.lineTo(startX + (mData.length - 1) * validWidth
+				/ (mHorizontalLabelCount - 1),
+				(float) (startY + validHeight - validHeight
+						* (mData[mData.length - 1].y / maxY)));
+		path.lineTo(startX + (mData.length - 1) * validWidth
+				/ (mHorizontalLabelCount - 1), startY + validHeight);
+		canvas.drawPath(path, mGridPaint);
+
+		mGridPaint.reset();
 	}
 
 	private double getMaxYValue() {
