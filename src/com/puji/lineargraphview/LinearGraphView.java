@@ -6,8 +6,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Align;
-import android.graphics.Paint.FontMetrics;
 import android.graphics.Path;
+import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
@@ -64,16 +64,6 @@ public class LinearGraphView extends View {
 	private int mHorizontalLabelCount = 7;
 
 	/**
-	 * 在X轴方向的开始刻度值
-	 */
-	private int mHorizontalStartTick;
-
-	/**
-	 * 在X轴方向的结束刻度值
-	 */
-	private int mHorizontalEndTick;
-
-	/**
 	 * 网格颜色
 	 */
 	private int mGridColor = Color.BLACK;
@@ -91,17 +81,17 @@ public class LinearGraphView extends View {
 	/**
 	 * 座标点处小圆的半径
 	 */
-	private int mPointRadius = getPxValue(5);
+	private int mPointRadius = getPxValue(3);
 
 	/**
 	 * 是否绘制座标点处的小圆
 	 */
-	private boolean isDrawPoint = false;
+	private boolean isDrawPoint = true;
 
 	/**
 	 * 是否填充所画图形的背景
 	 */
-	private boolean isDrawBackground = false;
+	private boolean isDrawBackground = true;
 
 	/**
 	 * 所画图形的背景颜色
@@ -116,12 +106,12 @@ public class LinearGraphView extends View {
 	/**
 	 * 图形标题与图形之间的间隔距离
 	 */
-	private int mSpaceingOfTitleWithGraph = getPxValue(5);
+	private int mSpaceingOfTitleWithGraph = getPxValue(10);
 
 	/**
 	 * 垂直标签与图形之间的间隔距离
 	 */
-	private int mSpaceingOfVerticalLabelWithGraph = getPxValue(5);
+	private int mSpaceingOfVerticalLabelWithGraph = getPxValue(10);
 
 	/**
 	 * 水平标签与图形之间的间隔距离
@@ -159,6 +149,35 @@ public class LinearGraphView extends View {
 	private String[] mHorizontalLables;
 
 	/**
+	 * 线性图的曲线厚度
+	 */
+	private int mLineWeight = getPxValue(1);
+
+	/**
+	 * 线性图的曲线颜色
+	 */
+	private int mLineColor = 0xff000000;
+
+	/**
+	 * 得到水平标签字符串数组
+	 * 
+	 * @return
+	 */
+	public String[] getHorizontalLables() {
+		return mHorizontalLables;
+	}
+
+	/**
+	 * 设置水平标签字符串数组
+	 * 
+	 * @param mHorizontalLables
+	 */
+	public void setHorizontalLables(String[] mHorizontalLables) {
+		this.mHorizontalLables = mHorizontalLables;
+		invalidate();
+	}
+
+	/**
 	 * 得到图形标题
 	 * 
 	 * @return
@@ -174,6 +193,7 @@ public class LinearGraphView extends View {
 	 */
 	public void setGraphTitle(String mGraphTitle) {
 		this.mGraphTitle = mGraphTitle;
+		invalidate();
 	}
 
 	/**
@@ -192,6 +212,7 @@ public class LinearGraphView extends View {
 	 */
 	public void setGraphTitleColor(int mGraphTitleColor) {
 		this.mGraphTitleColor = mGraphTitleColor;
+		invalidate();
 	}
 
 	/**
@@ -210,6 +231,7 @@ public class LinearGraphView extends View {
 	 */
 	public void setGraphTitleTextSize(int mGraphTitleTextSize) {
 		this.mGraphTitleTextSize = convertSpToPxValue(mGraphTitleTextSize);
+		invalidate();
 	}
 
 	/**
@@ -228,6 +250,7 @@ public class LinearGraphView extends View {
 	 */
 	public void setHorzontalLableColor(int mHorzontalLableColor) {
 		this.mHorzontalLableColor = mHorzontalLableColor;
+		invalidate();
 	}
 
 	/**
@@ -246,6 +269,7 @@ public class LinearGraphView extends View {
 	 */
 	public void setHorzontalLabelTextSize(int mHorzontalLabelTextSize) {
 		this.mHorzontalLabelTextSize = convertSpToPxValue(mHorzontalLabelTextSize);
+		invalidate();
 	}
 
 	/**
@@ -264,6 +288,7 @@ public class LinearGraphView extends View {
 	 */
 	public void setVertialLabelColor(int mVertialLabelColor) {
 		this.mVertialLabelColor = mVertialLabelColor;
+		invalidate();
 	}
 
 	/**
@@ -282,6 +307,7 @@ public class LinearGraphView extends View {
 	 */
 	public void setVertialLabelTextSize(int mVertialLabelTextSize) {
 		this.mVertialLabelTextSize = convertSpToPxValue(mVertialLabelTextSize);
+		invalidate();
 	}
 
 	/**
@@ -300,42 +326,45 @@ public class LinearGraphView extends View {
 	 */
 	public void setHorizontalLabelCount(int mHorizontalLabelCount) {
 		this.mHorizontalLabelCount = mHorizontalLabelCount;
+		invalidate();
 	}
 
 	/**
-	 * 得到水平方向的起始刻度
+	 * 得到所画曲线图的线的厚度
 	 * 
 	 * @return
 	 */
-	public int getHorizontalStartTick() {
-		return mHorizontalStartTick;
+	public int getLineWeight() {
+		return mLineWeight;
 	}
 
 	/**
-	 * 设置水平方向的起始刻度
+	 * 设置所画曲线图的线的厚度
 	 * 
-	 * @param mHorizontalStartTick
+	 * @param mLineWeight
 	 */
-	public void setHorizontalStartTick(int mHorizontalStartTick) {
-		this.mHorizontalStartTick = mHorizontalStartTick;
+	public void setLineWeight(int mLineWeight) {
+		this.mLineWeight = mLineWeight;
+		invalidate();
 	}
 
 	/**
-	 * 得到水平方向的结束刻度
+	 * 得到所画线性图的线的颜色
 	 * 
 	 * @return
 	 */
-	public int getHorizontalEndTick() {
-		return mHorizontalEndTick;
+	public int getLineColor() {
+		return mLineColor;
 	}
 
 	/**
-	 * 设置水平方向的结束刻度
+	 * 设置所画线性图的线的颜色
 	 * 
-	 * @param mHorizontalEndTick
+	 * @param mLineColor
 	 */
-	public void setHorizontalEndTick(int mHorizontalEndTick) {
-		this.mHorizontalEndTick = mHorizontalEndTick;
+	public void setLineColor(int mLineColor) {
+		this.mLineColor = mLineColor;
+		invalidate();
 	}
 
 	/**
@@ -354,6 +383,7 @@ public class LinearGraphView extends View {
 	 */
 	public void setGridColor(int mGridColor) {
 		this.mGridColor = mGridColor;
+		invalidate();
 	}
 
 	/**
@@ -372,6 +402,7 @@ public class LinearGraphView extends View {
 	 */
 	public void setGridWeight(int mGridWeight) {
 		this.mGridWeight = getPxValue(mGridWeight);
+		invalidate();
 	}
 
 	/**
@@ -390,6 +421,7 @@ public class LinearGraphView extends View {
 	 */
 	public void setPointColor(int mPointColor) {
 		this.mPointColor = mPointColor;
+		invalidate();
 	}
 
 	/**
@@ -408,6 +440,7 @@ public class LinearGraphView extends View {
 	 */
 	public void setPointRadius(int mPointRadius) {
 		this.mPointRadius = getPxValue(mPointRadius);
+		invalidate();
 	}
 
 	/**
@@ -426,6 +459,7 @@ public class LinearGraphView extends View {
 	 */
 	public void setDrawPoint(boolean isDrawPoint) {
 		this.isDrawPoint = isDrawPoint;
+		invalidate();
 	}
 
 	/**
@@ -444,6 +478,7 @@ public class LinearGraphView extends View {
 	 */
 	public void setDrawBackground(boolean isDrawBackground) {
 		this.isDrawBackground = isDrawBackground;
+		invalidate();
 	}
 
 	/**
@@ -462,6 +497,7 @@ public class LinearGraphView extends View {
 	 */
 	public void setGraphBackgroundColor(int mGraphBackgroundColor) {
 		this.mGraphBackgroundColor = mGraphBackgroundColor;
+		invalidate();
 	}
 
 	/**
@@ -499,6 +535,7 @@ public class LinearGraphView extends View {
 	 */
 	public void setSpaceingOfTitleWithGraph(int mSpaceingOfTitleWithGraph) {
 		this.mSpaceingOfTitleWithGraph = mSpaceingOfTitleWithGraph;
+		invalidate();
 	}
 
 	/**
@@ -518,6 +555,7 @@ public class LinearGraphView extends View {
 	public void setSpaceingOfVerticalLabelWithGraph(
 			int mSpaceingOfVerticalLabelWithGraph) {
 		this.mSpaceingOfVerticalLabelWithGraph = mSpaceingOfVerticalLabelWithGraph;
+		invalidate();
 	}
 
 	/**
@@ -537,6 +575,7 @@ public class LinearGraphView extends View {
 	public void setSpaceingOfHorizontalLabelWithGraph(
 			int mSpaceingOfHorizontalLabelWithGraph) {
 		this.mSpaceingOfHorizontalLabelWithGraph = mSpaceingOfHorizontalLabelWithGraph;
+		invalidate();
 	}
 
 	/**
@@ -555,6 +594,7 @@ public class LinearGraphView extends View {
 	 */
 	public void setHorizontalLabelAlign(Align mHorizontalLabelAlign) {
 		this.mHorizontalLabelAlign = mHorizontalLabelAlign;
+		invalidate();
 	}
 
 	/**
@@ -573,6 +613,7 @@ public class LinearGraphView extends View {
 	 */
 	public void setVerticalLabelAlign(Align mVerticalLabelAlign) {
 		this.mVerticalLabelAlign = mVerticalLabelAlign;
+		invalidate();
 	}
 
 	/**
@@ -591,6 +632,7 @@ public class LinearGraphView extends View {
 	 */
 	public void setGraphTitleAlign(Align mGraphTitleAlign) {
 		this.mGraphTitleAlign = mGraphTitleAlign;
+		invalidate();
 	}
 
 	public LinearGraphView(Context context) {
@@ -617,20 +659,42 @@ public class LinearGraphView extends View {
 			return;
 		}
 
-		int startX = 100 + mSpaceingOfHorizontalLabelWithGraph;
-		int startY = getFontHeight(mGraphTitleTextSize)
-				+ mSpaceingOfHorizontalLabelWithGraph;
+		// 得到给出的数据源中在Y方向的最大值
+		double maxY = getMaxYValue();
+		// 得到座标轴在Y方向两个刻度之间所表示的数值大小
+		double perY = maxY / mData.length;
 
-		int validWidth = getWidth() - startX - getPaddingRight();
+		int startX = getHorizontalLabelWidth(perY, mVertialLabelTextSize)
+				+ mSpaceingOfVerticalLabelWithGraph + getPaddingLeft();
+		int startY = getFontHeight(mGraphTitleTextSize)
+				+ mSpaceingOfTitleWithGraph + getPaddingTop();
+
+		int validWidth = getWidth() - startX - getPaddingRight()
+				- mSpaceingOfVerticalLabelWithGraph;
 		int validHeight = getHeight() - startY
 				- mSpaceingOfHorizontalLabelWithGraph
-				- mSpaceingOfTitleWithGraph;
+				- getFontHeight(mHorzontalLabelTextSize) - getPaddingBottom();
+
+		mTextPaint.setAntiAlias(true);
+		mTextPaint.setTextSize(mHorzontalLabelTextSize);
+		mTextPaint.setColor(mHorzontalLableColor);
 
 		mGridPaint.setAntiAlias(true);
 		mGridPaint.setColor(mGridColor);
 		mGridPaint.setStyle(Paint.Style.STROKE);
 		mGridPaint.setStrokeWidth(mGridWeight);
 
+		// 绘制图形标题
+		if (mGraphTitle != null) {
+			mTextPaint.setTextAlign(mGraphTitleAlign);
+			mTextPaint.setTextSize(mGraphTitleTextSize);
+			mTextPaint.setColor(mGraphTitleColor);
+			canvas.drawText(mGraphTitle, startX + validWidth / 2,
+					getPaddingTop() + getFontHeight(mGraphTitleTextSize),
+					mTextPaint);
+		}
+
+		// 开始画水平座标线
 		for (int i = 0; i < mHorizontalLabelCount - 1; i++) {
 
 			canvas.drawLine(startX + i * validWidth
@@ -642,21 +706,68 @@ public class LinearGraphView extends View {
 		canvas.drawLine(startX + validWidth, startY, startX + validWidth,
 				startY + validHeight, mGridPaint);
 
-		for (int i = 0; i < mData.length - 1; i++) {
+		// 开始画水平标签
+		mTextPaint.setTextAlign(mHorizontalLabelAlign);
+		mTextPaint.setTextSize(mHorzontalLabelTextSize);
+		mTextPaint.setColor(mHorzontalLableColor);
+		if (mHorizontalLables != null) {
+			for (int i = 0; i < mHorizontalLables.length; i++) {
+				canvas.drawText(mHorizontalLables[i], startX + i * validWidth
+						/ (mHorizontalLabelCount - 1), startY + validHeight
+						+ mSpaceingOfHorizontalLabelWithGraph
+						+ getFontHeight(mHorzontalLabelTextSize), mTextPaint);
+			}
+		} else {
+			for (int i = 0; i < mHorizontalLabelCount; i++) {
+				canvas.drawText("" + i, startX + i * validWidth
+						/ (mHorizontalLabelCount - 1), startY + validHeight
+						+ mSpaceingOfHorizontalLabelWithGraph
+						+ getFontHeight(mHorzontalLabelTextSize), mTextPaint);
+			}
+		}
 
-			canvas.drawLine(startX, startY + i * validHeight
-					/ (mData.length - 1), startX + validWidth, startY + i
-					* validHeight / (mData.length - 1), mGridPaint);
+		// 开始画垂直座标线和垂直标签
+		mTextPaint.setTextAlign(mVerticalLabelAlign);
+		mTextPaint.setTextSize(mVertialLabelTextSize);
+		mTextPaint.setColor(mVertialLabelColor);
+		for (int i = 0; i <= mData.length; i++) {
+
+			canvas.drawLine(startX, startY + i * validHeight / (mData.length),
+					startX + validWidth, startY + i * validHeight
+							/ (mData.length), mGridPaint);
+			canvas.drawText("" + formatYValue(perY * (mData.length - i)),
+					getPaddingLeft(),
+					startY + i * validHeight / (mData.length), mTextPaint);
 
 		}
-		canvas.drawLine(startX, startY + validHeight, startX + validWidth,
-				startY + validHeight, mGridPaint);
 
-		Path path = new Path();
-		path.moveTo(startX, startY + validHeight);
+		// 根据给出的数据源绘制图形背景
+		if (isDrawBackground) {
+			mGridPaint.setColor(mGraphBackgroundColor);
+			mGridPaint.setStyle(Paint.Style.FILL);
+			Path path = new Path();
+			path.moveTo(startX, startY + validHeight);
 
-		mGridPaint.setColor(Color.RED);
-		double maxY = getMaxYValue();
+			for (int i = 1; i < mData.length; i++) {
+
+				path.lineTo(startX + (i - 1) * validWidth
+						/ (mHorizontalLabelCount - 1), (float) (startY
+						+ validHeight - validHeight * (mData[i - 1].y / maxY)));
+
+			}
+
+			path.lineTo(startX + (mData.length - 1) * validWidth
+					/ (mHorizontalLabelCount - 1), (float) (startY
+					+ validHeight - validHeight
+					* (mData[mData.length - 1].y / maxY)));
+			path.lineTo(startX + (mData.length - 1) * validWidth
+					/ (mHorizontalLabelCount - 1), startY + validHeight);
+			canvas.drawPath(path, mGridPaint);
+		}
+
+		// 根据给出的数据源绘制图形
+		mGridPaint.setColor(mLineColor);
+		mGridPaint.setStrokeWidth(mLineWeight);
 		for (int i = 1; i < mData.length; i++) {
 
 			canvas.drawLine(startX + (i - 1) * validWidth
@@ -666,24 +777,42 @@ public class LinearGraphView extends View {
 					(float) (startY + validHeight - validHeight
 							* (mData[i].y / maxY)), mGridPaint);
 
-			path.lineTo(startX + (i - 1) * validWidth
-					/ (mHorizontalLabelCount - 1), (float) (startY
-					+ validHeight - validHeight * (mData[i - 1].y / maxY)));
-
 		}
 
-		mGridPaint.setStyle(Paint.Style.FILL);
-		path.lineTo(startX + (mData.length - 1) * validWidth
-				/ (mHorizontalLabelCount - 1),
-				(float) (startY + validHeight - validHeight
-						* (mData[mData.length - 1].y / maxY)));
-		path.lineTo(startX + (mData.length - 1) * validWidth
-				/ (mHorizontalLabelCount - 1), startY + validHeight);
-		canvas.drawPath(path, mGridPaint);
+		// 绘制座标点处的小圆
+
+		if (isDrawPoint) {
+			mGridPaint.setColor(mPointColor);
+			mGridPaint.setStyle(Paint.Style.FILL);
+			for (int i = 0; i < mData.length; i++) {
+
+				canvas.drawCircle(startX + (i) * validWidth
+						/ (mHorizontalLabelCount - 1), (float) (startY
+						+ validHeight - validHeight * (mData[i].y / maxY)),
+						mPointRadius, mGridPaint);
+
+			}
+
+		}
 
 		mGridPaint.reset();
 	}
 
+	/**
+	 * 将double的数据格式化成带有4位有效小数的数据并以字符串形式返回
+	 * 
+	 * @param d
+	 * @return
+	 */
+	private String formatYValue(double d) {
+		return (long) (Math.round(d * 10000)) / 10000.0 + "";
+	}
+
+	/**
+	 * 得到数据源中在Y方向的最大数据
+	 * 
+	 * @return
+	 */
 	private double getMaxYValue() {
 
 		double max = mData[0].y;
@@ -696,18 +825,28 @@ public class LinearGraphView extends View {
 		return max;
 	}
 
-	private String getMaxLengthString(String[] data) {
-
+	/**
+	 * 得到垂直标签所占用的最大宽度
+	 * 
+	 * @param perY
+	 * @param fontSize
+	 * @return
+	 */
+	private int getHorizontalLabelWidth(double perY, int fontSize) {
 		int length = 0;
-		int index = 0;
+		StringBuffer str = new StringBuffer();
+		String ss = null;
+		for (int i = 0; i < mData.length - 1; i++) {
 
-		for (int i = 0; i < data.length; i++) {
-			if (length < data[i].length()) {
-				length = data[i].length();
-				index = i;
+			ss = formatYValue(perY * (mData.length - i));
+			if (ss.length() > length) {
+				str.delete(0, str.length());
+				str.append(ss);
 			}
+
 		}
-		return data[index];
+
+		return getFontWidth(fontSize, str.toString());
 	}
 
 	/**
@@ -719,8 +858,10 @@ public class LinearGraphView extends View {
 	private int getFontHeight(float fontSize) {
 		Paint paint = new Paint();
 		paint.setTextSize(fontSize);
-		FontMetrics fm = paint.getFontMetrics();
-		return (int) Math.ceil(fm.descent - fm.top) + 2;
+		Rect rect = new Rect();
+		paint.getTextBounds("0000", 0, "0000".length(), rect);
+		return rect.height();
+
 	}
 
 	/**
