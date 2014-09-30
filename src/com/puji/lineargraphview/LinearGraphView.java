@@ -41,7 +41,7 @@ public class LinearGraphView extends View {
 	/**
 	 * 水平标签颜色
 	 */
-	private int mHorzontalLableColor = Color.BLACK;
+	private int mHorizontalLableColor = Color.BLACK;
 
 	/**
 	 * 水平标签字体大小
@@ -62,6 +62,11 @@ public class LinearGraphView extends View {
 	 * 水平刻度数
 	 */
 	private int mHorizontalLabelCount = 7;
+
+	/**
+	 * 垂直刻度数
+	 */
+	private int mVertialLabelCount = 6;
 
 	/**
 	 * 网格颜色
@@ -239,8 +244,8 @@ public class LinearGraphView extends View {
 	 * 
 	 * @return
 	 */
-	public int getHorzontalLableColor() {
-		return mHorzontalLableColor;
+	public int getHorizontalLableColor() {
+		return mHorizontalLableColor;
 	}
 
 	/**
@@ -248,8 +253,8 @@ public class LinearGraphView extends View {
 	 * 
 	 * @param mHorzontalLableColor
 	 */
-	public void setHorzontalLableColor(int mHorzontalLableColor) {
-		this.mHorzontalLableColor = mHorzontalLableColor;
+	public void setHorizontalLableColor(int mHorzontalLableColor) {
+		this.mHorizontalLableColor = mHorzontalLableColor;
 		invalidate();
 	}
 
@@ -327,6 +332,24 @@ public class LinearGraphView extends View {
 	public void setHorizontalLabelCount(int mHorizontalLabelCount) {
 		this.mHorizontalLabelCount = mHorizontalLabelCount;
 		invalidate();
+	}
+
+	/**
+	 * 得到垂直标签个数
+	 * 
+	 * @return
+	 */
+	public int getVertialLabelCount() {
+		return mVertialLabelCount;
+	}
+
+	/**
+	 * 设置垂直标签个数
+	 * 
+	 * @param mVertialLabelCount
+	 */
+	public void setVertialLabelCount(int mVertialLabelCount) {
+		this.mVertialLabelCount = mVertialLabelCount;
 	}
 
 	/**
@@ -662,7 +685,8 @@ public class LinearGraphView extends View {
 		// 得到给出的数据源中在Y方向的最大值
 		double maxY = getMaxYValue();
 		// 得到座标轴在Y方向两个刻度之间所表示的数值大小
-		double perY = maxY / mData.length;
+
+		double perY = maxY / (mVertialLabelCount-1);
 
 		int startX = getHorizontalLabelWidth(perY, mVertialLabelTextSize)
 				+ mSpaceingOfVerticalLabelWithGraph + getPaddingLeft();
@@ -677,7 +701,7 @@ public class LinearGraphView extends View {
 
 		mTextPaint.setAntiAlias(true);
 		mTextPaint.setTextSize(mHorzontalLabelTextSize);
-		mTextPaint.setColor(mHorzontalLableColor);
+		mTextPaint.setColor(mHorizontalLableColor);
 
 		mGridPaint.setAntiAlias(true);
 		mGridPaint.setColor(mGridColor);
@@ -709,7 +733,7 @@ public class LinearGraphView extends View {
 		// 开始画水平标签
 		mTextPaint.setTextAlign(mHorizontalLabelAlign);
 		mTextPaint.setTextSize(mHorzontalLabelTextSize);
-		mTextPaint.setColor(mHorzontalLableColor);
+		mTextPaint.setColor(mHorizontalLableColor);
 		if (mHorizontalLables != null) {
 			for (int i = 0; i < mHorizontalLables.length; i++) {
 				canvas.drawText(mHorizontalLables[i], startX + i * validWidth
@@ -730,14 +754,16 @@ public class LinearGraphView extends View {
 		mTextPaint.setTextAlign(mVerticalLabelAlign);
 		mTextPaint.setTextSize(mVertialLabelTextSize);
 		mTextPaint.setColor(mVertialLabelColor);
-		for (int i = 0; i <= mData.length; i++) {
 
-			canvas.drawLine(startX, startY + i * validHeight / (mData.length),
-					startX + validWidth, startY + i * validHeight
-							/ (mData.length), mGridPaint);
-			canvas.drawText("" + formatYValue(perY * (mData.length - i)),
-					getPaddingLeft(),
-					startY + i * validHeight / (mData.length), mTextPaint);
+		for (int i = 0; i <= mVertialLabelCount - 1; i++) {
+
+			canvas.drawLine(startX, startY + i * validHeight
+					/ (mVertialLabelCount - 1), startX + validWidth, startY + i
+					* validHeight / (mVertialLabelCount - 1), mGridPaint);
+			canvas.drawText(""
+					+ formatYValue(perY * (mVertialLabelCount - 1 - i)),
+					getPaddingLeft(), startY + i * validHeight
+							/ (mVertialLabelCount - 1), mTextPaint);
 
 		}
 
@@ -796,6 +822,8 @@ public class LinearGraphView extends View {
 		}
 
 		mGridPaint.reset();
+		mTextPaint.reset();
+		canvas.save();
 	}
 
 	/**
